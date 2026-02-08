@@ -59,10 +59,16 @@ services:
     user: "root"
     command: server standalone
     volumes:
+      # --- Old Volume ---
       - kestra_data:/app/storage
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/kestra-wd:/tmp/kestra-wd
-    environment:
+      # --- New Volume for GCP ---
+      - ./.google/gcp-service-account.json:/keys/gcp-service-account.json:ro
+    environment: 
+      # GCP Env
+      GOOGLE_APPLICATION_CREDENTIALS: /keys/gcp-service-account.json
+      # Postgres Env
       KESTRA_CONFIGURATION: |
         datasources:
           postgres:
@@ -73,7 +79,7 @@ services:
         kestra:
           server:
             basicAuth:
-              username: "admin@kestra.io" # it must be a valid email address
+              username: "admin@kestra.io"
               password: Admin1234!
           repository:
             type: postgres
